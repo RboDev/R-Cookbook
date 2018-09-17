@@ -3,7 +3,10 @@ title: "rbokeh introduction"
 output: html_notebook
 ---
 
+
+
 ```{r}
+knitr::opts_chunk$set(warning=FALSE) # annoying warnings with rbokeh :-(
 ## load rbokeh, gapminder and dplyr libraries
 library(rbokeh)
 library(gapminder)
@@ -15,7 +18,7 @@ library(dplyr)
 str(gapminder)
 ```
 
-```{r}
+```{r warning=FALSE}
 ## filter gapminder data by year 1982
 dat_1982 <- gapminder %>% filter(year == 1982)
 
@@ -26,3 +29,84 @@ figure(legend_location = "bottom_right",
             color = continent, hover = c(continent, country, pop))
 ```
 
+```{r warning=FALSE}
+## filter the dataset for the continent Africa and and year 1967
+data_africa <- gapminder %>% 
+  filter(year == 1967, continent == "Africa")
+
+## plot life expectancy Vs GDP per Capita using data_africa   
+figure(legend_location = "bottom_right",
+       title = "Life Expectancy Vs. GDP per Capita in Africa - 1967") %>% 
+  ly_points(x = gdpPercap, y = lifeExp, data = data_africa,
+            hover = c(country, pop))
+```
+
+```{r warning=FALSE}
+## add a new column with gdp in millions
+gapminder %>% 
+  mutate(gdp_millions = gdpPercap * pop / 10e6) %>%
+  filter(country == "Rwanda") %>%
+  figure %>% 
+  ly_lines(x = year, y = gdp_millions, width = 2)
+```
+
+## rbokeh Layers
+
+```{r}
+economics <- ggplot2::economics
+str(economics)
+```
+
+ * Passing vectors
+
+```{r warning=FALSE}
+figure() %>%
+  ly_lines(x = economics$date, y = economics$pce )
+```
+
+ * Specify the dataframe 
+ 
+```{r}
+figure() %>%
+  ly_lines(x = date, y = pce, data = economics)
+```
+
+```{r warning=FALSE}
+## plot unemployment rate  versus time and change the default `ylab`
+figure(ylab = "unemployment %") %>%
+  ly_lines(x = date, y = 100*unemploy/pop, data = economics)
+```
+
+## More layers
+
+```{r}
+rm(list=ls())
+```
+
+```{r warning=FALSE}
+## plot lifeExp Vs. gdpPercap using rbokeh
+gapminder %>%
+  filter(year == 1992) %>%
+  figure(legend_location = "bottom_right") %>%
+  ly_points(x=gdpPercap, y=lifeExp, color=continent)└
+```
+
+ * use two layers
+ 
+```{r warning=FALSE}
+gapminder %>%
+  filter(country %in% c('France','Germany','Italy')) %>%
+  figure() %>%
+  ly_points(x = year, y = gdpPercap , color = country) %>%
+  ly_lines(x = year, y = gdpPercap , color = country)
+
+```
+ 
+```{r warning=FALSE}
+gapminder %>%
+  filter(country %in% c("India","China")) %>%
+  figure() %>%
+  ly_lines(x=year, y=lifeExp, color=country) %>%
+  ly_points(x=year, y=lifeExp, color=country)
+```
+ 

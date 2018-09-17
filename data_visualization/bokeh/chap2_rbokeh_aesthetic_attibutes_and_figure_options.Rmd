@@ -1,0 +1,57 @@
+---
+title: "rbokeh Aesthetic attributes and Figure options"
+output: html_notebook
+---
+
+```{r}
+knitr::opts_knit$set(warning=FALSE)
+
+library(dplyr)
+library(tidyr)
+library(rbokeh)
+library(readr)
+```
+
+
+## Dataset
+
+THe Human Develpment Index data is used <http://hdr.undp.org/en/data#>
+
+```{r}
+getwd()
+```
+
+```{r}
+hdi_data <- read_csv("Human development index (HDI).csv",skip=1 ) %>%
+  select(-`HDI Rank (2017)`) %>%
+  gather(key=year, value = human_development_index, -Country, convert=TRUE) %>%
+  rename(country=Country)
+```
+
+```{r warning=F}
+## extract "Namibia" and "Botswana" entries from hdi_data
+hdi_countries <- hdi_data %>% 
+  filter(country %in% c("Namibia", "Botswana"))
+  
+## plot human_development_index versus year
+fig_col <- figure(data = hdi_countries, legend_location = "bottom_right") %>% 
+  ly_lines(x = year, y = human_development_index, color = country) %>% 
+  ly_points(x = year, y = human_development_index, 
+            fill_color = "white", fill_alpha = 1,
+            line_color = country, line_alpha = 1,
+            size = 4)
+## view plot 
+fig_col
+```
+
+possible to change attributes
+
+```{r}
+## define custom palette   
+custom_pal <- pal_color("#c51b8a", "#31a354")
+
+## use custom_pal yp modify fig_col
+fig_col %>% 
+  set_palette(custom_pal)
+```
+
